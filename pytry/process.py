@@ -6,9 +6,9 @@ def process():
         decoded = json.load(in_file)
         for bookmark in decoded:
             if bookmark["description"] != "Twitter":
-                out_file.write(format(bookmark))
+                out_file.write(format_bookmark(bookmark))
 
-def format(bookmark):
+def format_bookmark(bookmark):
     return (f"# {bookmark['description']}\n"
             f"{bookmark['href']}\n"
             f"{bookmark['time']}\n"
