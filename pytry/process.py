@@ -36,6 +36,8 @@ def format_tags(tags):
     hashtags = []
     for tag in tags.split():
         hashtags.append(tag)
+    if "delicious" not in hashtags:
+        hashtags.append("pinboard")
     result = " ".join(hashtags)
     if len(result) == 0:
         return ""
