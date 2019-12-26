@@ -1,13 +1,28 @@
 import json
+from dateutil.parser import parse
 
 
 def process():
-    with open("/Users/jqno/Desktop/pinboard_export.json", "r") as in_file, \
-         open("/Users/jqno/Desktop/results.md", "w") as out_file:
+    in_file_name = "/Users/jqno/Desktop/pinboard_export.json"
+    with open(in_file_name, "r") as in_file:
         decoded = json.load(in_file)
+        years = []
+        grouped = {}
+
         for bookmark in decoded:
             if bookmark["description"] != "Twitter":
-                out_file.write(format_bookmark(bookmark))
+                year = parse(bookmark['time']).year
+                formatted = format_bookmark(bookmark)
+                if year not in grouped:
+                    years.append(year)
+                    grouped[year] = []
+                grouped[year].append(formatted)
+
+        for year in sorted(years):
+            out_file_name = f"/Users/jqno/Desktop/results-{year}.md"
+            with open(out_file_name, "w") as out_file:
+                for bookmark in grouped[year]:
+                    out_file.write(bookmark)
 
 
 def format_bookmark(bookmark):
@@ -25,3 +40,4 @@ def format_tags(tags):
     if len(result) == 0:
         return ""
     return result + "\n"
+
