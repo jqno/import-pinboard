@@ -1,2 +1,2 @@
 [MASTER]
-disable=C0114,C0115,C0116
+disable=C0114,C0115,C0116,trailing-newlines
