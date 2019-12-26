@@ -35,7 +35,7 @@ def format_bookmark(bookmark):
 def format_tags(tags):
     hashtags = []
     for tag in tags.split():
-        hashtags.append(f"#{tag}")
+        hashtags.append(tag)
     result = " ".join(hashtags)
     if len(result) == 0:
         return ""
