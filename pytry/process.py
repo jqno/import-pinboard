@@ -10,13 +10,12 @@ def process():
         grouped = {}
 
         for bookmark in decoded:
-            if bookmark["description"] != "Twitter":
-                year = parse(bookmark['time']).year
-                formatted = format_bookmark(bookmark)
-                if year not in grouped:
-                    years.append(year)
-                    grouped[year] = []
-                grouped[year].append(formatted)
+            year = parse(bookmark['time']).year
+            formatted = format_bookmark(bookmark)
+            if year not in grouped:
+                years.append(year)
+                grouped[year] = []
+            grouped[year].append(formatted)
 
         for year in sorted(years):
             out_file_name = f"/Users/jqno/Desktop/results-{year}.md"
