@@ -27,6 +27,7 @@ def process():
 def format_bookmark(bookmark):
     return (f"# {bookmark['description']}\n"
             f"{bookmark['href']}\n"
+            f"{bookmark['extended']}"
             f"{bookmark['time']}\n"
             f"{format_tags(bookmark['tags'])}\n\n")
 
