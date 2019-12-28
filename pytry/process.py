@@ -1,9 +1,11 @@
 import json
 from dateutil.parser import parse
 
+FOLDER = "/Users/jqno/Desktop/pinboard"
+
 
 def process():
-    in_file_name = "/Users/jqno/Desktop/pinboard_export.json"
+    in_file_name = f"{FOLDER}/pinboard_export.json"
     with open(in_file_name, "r") as in_file:
         decoded = json.load(in_file)
         years = []
@@ -18,7 +20,7 @@ def process():
             grouped[year].append(formatted)
 
         for year in sorted(years):
-            out_file_name = f"/Users/jqno/Desktop/results-{year}.md"
+            out_file_name = f"{FOLDER}/results-{year}.md"
             with open(out_file_name, "w") as out_file:
                 for bookmark in grouped[year]:
                     out_file.write(bookmark)
