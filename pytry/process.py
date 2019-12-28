@@ -5,6 +5,20 @@ FOLDER = "/Users/jqno/Desktop/pinboard"
 
 
 def process():
+    grouped_bookmarks = determine_grouped_bookmarks()
+    write_files(grouped_bookmarks)
+
+
+def write_files(grouped_bookmarks):
+    years = grouped_bookmarks.keys()
+    for year in sorted(years):
+        out_file_name = f"{FOLDER}/results-{year}.md"
+        with open(out_file_name, "w") as out_file:
+            for bookmark in grouped_bookmarks[year]:
+                out_file.write(bookmark)
+
+
+def determine_grouped_bookmarks():
     in_file_name = f"{FOLDER}/pinboard_export.json"
     with open(in_file_name, "r") as in_file:
         decoded = json.load(in_file)
@@ -19,11 +33,7 @@ def process():
                 grouped[year] = []
             grouped[year].append(formatted)
 
-        for year in sorted(years):
-            out_file_name = f"{FOLDER}/results-{year}.md"
-            with open(out_file_name, "w") as out_file:
-                for bookmark in grouped[year]:
-                    out_file.write(bookmark)
+        return grouped
 
 
 def format_bookmark(bookmark):
