@@ -9,16 +9,6 @@ def process():
     write_files(grouped_bookmarks)
 
 
-def write_files(grouped_bookmarks):
-    years = grouped_bookmarks.keys()
-    for year in sorted(years):
-        out_file_name = f"{FOLDER}/results-{year}.md"
-        with open(out_file_name, "w") as out_file:
-            for bookmark in grouped_bookmarks[year]:
-                formatted = format_bookmark(bookmark)
-                out_file.write(formatted)
-
-
 def determine_grouped_bookmarks():
     in_file_name = f"{FOLDER}/pinboard_export.json"
     with open(in_file_name, "r") as in_file:
@@ -44,6 +34,16 @@ def process_tags(tags):
     if "delicious" not in hashtags:
         hashtags.append("pinboard")
     return hashtags
+
+
+def write_files(grouped_bookmarks):
+    years = grouped_bookmarks.keys()
+    for year in sorted(years):
+        out_file_name = f"{FOLDER}/results-{year}.md"
+        with open(out_file_name, "w") as out_file:
+            for bookmark in grouped_bookmarks[year]:
+                formatted = format_bookmark(bookmark)
+                out_file.write(formatted)
 
 
 def format_bookmark(bookmark):
