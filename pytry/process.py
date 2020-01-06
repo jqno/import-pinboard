@@ -1,4 +1,5 @@
 import json
+from bs4 import BeautifulSoup
 from dateutil.parser import parse
 
 FOLDER = "/Users/jqno/Desktop/pinboard"
@@ -6,7 +7,9 @@ FOLDER = "/Users/jqno/Desktop/pinboard"
 
 def process():
     bookmarks = determine_bookmarks()
-    grouped_bookmarks = group_bookmarks(bookmarks)
+    twitter_favs = determine_twitter_favs()
+    filtered_bookmarks = filter_bookmarks(bookmarks, twitter_favs)
+    grouped_bookmarks = group_bookmarks(filtered_bookmarks)
     write_files(grouped_bookmarks)
 
 
@@ -14,6 +17,27 @@ def determine_bookmarks():
     in_file_name = f"{FOLDER}/pinboard_export.json"
     with open(in_file_name, "r") as in_file:
         return json.load(in_file)
+
+
+def determine_twitter_favs():
+    result = []
+    for i in [1, 2, 3]:
+        file_name = f"{FOLDER}/from-twitter-favs-{i}.html"
+        with open(file_name, "r") as in_file:
+            html = BeautifulSoup(in_file.read(), "html.parser")
+            for link in html.find_all("a"):
+                html_class = link.get("class")
+                if html_class is not None and "bookmark_title" in html_class:
+                    result.append(link.get("href"))
+    return result
+
+
+def filter_bookmarks(bookmarks, links_to_remove):
+    result = []
+    for bookmark in bookmarks:
+        if bookmark['href'] not in links_to_remove:
+            result.append(bookmark)
+    return result
 
 
 def group_bookmarks(bookmarks):
