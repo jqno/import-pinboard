@@ -5,26 +5,30 @@ FOLDER = "/Users/jqno/Desktop/pinboard"
 
 
 def process():
-    grouped_bookmarks = determine_grouped_bookmarks()
+    bookmarks = determine_bookmarks()
+    grouped_bookmarks = group_bookmarks(bookmarks)
     write_files(grouped_bookmarks)
 
 
-def determine_grouped_bookmarks():
+def determine_bookmarks():
     in_file_name = f"{FOLDER}/pinboard_export.json"
     with open(in_file_name, "r") as in_file:
-        decoded = json.load(in_file)
-        years = []
-        grouped = {}
+        return json.load(in_file)
 
-        for bookmark in decoded:
-            year = parse(bookmark['time']).year
-            bookmark['processed_tags'] = process_tags(bookmark['tags'])
-            if year not in grouped:
-                years.append(year)
-                grouped[year] = []
-            grouped[year].append(bookmark)
 
-        return grouped
+def group_bookmarks(bookmarks):
+    years = []
+    grouped = {}
+
+    for bookmark in bookmarks:
+        year = parse(bookmark['time']).year
+        bookmark['processed_tags'] = process_tags(bookmark['tags'])
+        if year not in grouped:
+            years.append(year)
+            grouped[year] = []
+        grouped[year].append(bookmark)
+
+    return grouped
 
 
 def process_tags(tags):
