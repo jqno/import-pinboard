@@ -1,6 +1,8 @@
+import datetime
 import json
-from bs4 import BeautifulSoup
 from dateutil.parser import parse
+import requests
+from bs4 import BeautifulSoup
 
 FOLDER = "/Users/jqno/Desktop/pinboard"
 
@@ -9,7 +11,8 @@ def process():
     bookmarks = determine_bookmarks()
     twitter_favs = determine_twitter_favs()
     filtered_bookmarks = filter_bookmarks(bookmarks, twitter_favs)
-    grouped_bookmarks = group_bookmarks(filtered_bookmarks)
+    pinged_bookmarks = ping_bookmarks(filtered_bookmarks)
+    grouped_bookmarks = group_bookmarks(pinged_bookmarks)
     write_files(grouped_bookmarks)
 
 
@@ -43,6 +46,22 @@ def filter_bookmarks(bookmarks, links_to_remove):
         if bookmark['href'] not in links_to_remove:
             result.append(bookmark)
     return result
+
+
+def ping_bookmarks(bookmarks):
+    number = 0
+    now = datetime.date.today().ctime()
+    for bookmark in bookmarks:
+        if number % 10 == 0:
+            print(f"Checking link #{number}...")
+        try:
+            req = requests.get(bookmark["href"])
+            if req.status_code >= 400:
+                bookmark["dead_link"] = f"[link dead with HTTP {req.status_code} as of {now}]"
+        except Exception as err:
+            bookmark["dead_link"] = f"[link dead with error {err} as of {now}]"
+        number = number + 1
+    return bookmarks
 
 
 def group_bookmarks(bookmarks):
@@ -85,7 +104,14 @@ def format_bookmark(bookmark):
         tags += "\n"
     return (f"# {bookmark['description']}\n"
             f"{bookmark['href']}\n"
-            f"{bookmark['extended']}"
+            f"{bookmark['dead_link']}\n"
+            f"{bookmark['extended']}\n"
             f"{bookmark['time']}\n"
             f"{tags}\n\n")
+
+
+def format_dead_link(bookmark):
+    if bookmark["dead_link"] is True:
+        return f"[link appears dead as of {datetime.date.today().ctime()}]\n"
+    return ""
 
