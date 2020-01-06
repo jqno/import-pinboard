@@ -25,11 +25,16 @@ def determine_twitter_favs():
         file_name = f"{FOLDER}/from-twitter-favs-{i}.html"
         with open(file_name, "r") as in_file:
             html = BeautifulSoup(in_file.read(), "html.parser")
-            for link in html.find_all("a"):
-                html_class = link.get("class")
-                if html_class is not None and "bookmark_title" in html_class:
-                    result.append(link.get("href"))
+            links = [link.get("href")
+                     for link in html.find_all("a")
+                     if link_has_correct_class(link)]
+            result = result + links
     return result
+
+
+def link_has_correct_class(link):
+    html_class = link.get("class")
+    return html_class is not None and "bookmark_title" in html_class
 
 
 def filter_bookmarks(bookmarks, links_to_remove):
