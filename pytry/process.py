@@ -1,8 +1,11 @@
 import json
-from bs4 import BeautifulSoup
+import os
+import string
 from dateutil.parser import parse
+from bs4 import BeautifulSoup
 
 FOLDER = "/Users/jqno/Desktop/pinboard"
+VALID_CHARS = "-_.() %s%s" % (string.ascii_letters, string.digits)
 
 
 def process():
@@ -10,8 +13,7 @@ def process():
     twitter_favs = determine_twitter_favs()
     filtered_bookmarks = filter_bookmarks(bookmarks, twitter_favs)
     processed_bookmarks = process_bookmarks(filtered_bookmarks)
-    grouped_bookmarks = group_bookmarks(processed_bookmarks)
-    write_files(grouped_bookmarks)
+    write_files(processed_bookmarks)
 
 
 def determine_bookmarks():
@@ -64,37 +66,37 @@ def process_tags(tags):
     return hashtags
 
 
-def group_bookmarks(bookmarks):
-    years = []
-    grouped = {}
-
+def write_files(bookmarks):
     for bookmark in bookmarks:
-        year = parse(bookmark['time']).year
-        if year not in grouped:
-            years.append(year)
-            grouped[year] = []
-        grouped[year].append(bookmark)
+        year = parse(bookmark["time"]).year
+        sanitized = sanitize(bookmark["description"])
+        out_file_name = f"{FOLDER}/{year}/{sanitized}.md"
 
-    return grouped
-
-
-def write_files(grouped_bookmarks):
-    years = grouped_bookmarks.keys()
-    for year in sorted(years):
-        out_file_name = f"{FOLDER}/results-{year}.md"
+        create_dir(year)
         with open(out_file_name, "w") as out_file:
-            for bookmark in grouped_bookmarks[year]:
-                formatted = format_bookmark(bookmark)
-                out_file.write(formatted)
+            formatted = format_bookmark(bookmark)
+            out_file.write(formatted)
+
+
+def sanitize(text):
+    return "".join(c for c in text if c in VALID_CHARS)
+
+
+def create_dir(year):
+    try:
+        os.mkdir(f"{FOLDER}/{year}")
+    except FileExistsError:
+        pass
 
 
 def format_bookmark(bookmark):
     tags = " ".join(bookmark['processed_tags'])
     if len(tags) > 0:
         tags += "\n"
-    return (f"# {bookmark['description']}\n"
-            f"{bookmark['href']}\n"
+    time = parse(bookmark["time"])
+    return (f"{bookmark['href']}\n"
+            f"{tags}\n"
+            f"{bookmark['description']}\n"
             f"{bookmark['extended']}"
-            f"{bookmark['time']}\n"
-            f"{tags}\n\n")
+            f"{time.date()}\n")
 
