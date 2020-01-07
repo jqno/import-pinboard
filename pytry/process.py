@@ -9,7 +9,8 @@ def process():
     bookmarks = determine_bookmarks()
     twitter_favs = determine_twitter_favs()
     filtered_bookmarks = filter_bookmarks(bookmarks, twitter_favs)
-    grouped_bookmarks = group_bookmarks(filtered_bookmarks)
+    processed_bookmarks = process_bookmarks(filtered_bookmarks)
+    grouped_bookmarks = group_bookmarks(processed_bookmarks)
     write_files(grouped_bookmarks)
 
 
@@ -45,28 +46,36 @@ def filter_bookmarks(bookmarks, links_to_remove):
     return result
 
 
+def process_bookmarks(bookmarks):
+    for bookmark in bookmarks:
+        bookmark['processed_tags'] = process_tags(bookmark['tags'])
+    return bookmarks
+
+
+def process_tags(tags):
+    hashtags = []
+    for tag in tags.split():
+        if tag == "delicious":
+            hashtags.append("source:delicious")
+        else:
+            hashtags.append(tag)
+    if "source:delicious" not in hashtags:
+        hashtags.append("source:pinboard")
+    return hashtags
+
+
 def group_bookmarks(bookmarks):
     years = []
     grouped = {}
 
     for bookmark in bookmarks:
         year = parse(bookmark['time']).year
-        bookmark['processed_tags'] = process_tags(bookmark['tags'])
         if year not in grouped:
             years.append(year)
             grouped[year] = []
         grouped[year].append(bookmark)
 
     return grouped
-
-
-def process_tags(tags):
-    hashtags = []
-    for tag in tags.split():
-        hashtags.append(tag)
-    if "delicious" not in hashtags:
-        hashtags.append("pinboard")
-    return hashtags
 
 
 def write_files(grouped_bookmarks):
